@@ -617,6 +617,10 @@ final class HealthCheckMiddleware_Tests: XCTestCase {
     var middleware: HealthCheckMiddleware!
     var webSocketClient: WebSocketClientMock!
     
+    // The database is not needed for the middleware but it's a requirement by the protocol that we provide a valid
+    // db session, so we need to have it.
+    var database: DatabaseContainer!
+    
     // MARK: - Setup
     
     override func setUp() {
@@ -624,10 +628,13 @@ final class HealthCheckMiddleware_Tests: XCTestCase {
         
         webSocketClient = WebSocketClientMock()
         middleware = HealthCheckMiddleware(webSocketClient: webSocketClient)
+        
+        database = DatabaseContainerMock()
     }
     
     override func tearDown() {
         AssertAsync.canBeReleased(&webSocketClient)
+        AssertAsync.canBeReleased(&database)
         
         super.tearDown()
     }
@@ -639,7 +646,7 @@ final class HealthCheckMiddleware_Tests: XCTestCase {
         
         // Simulate incoming public event
         let forwardedEvent = try await {
-            middleware.handle(event: event, completion: $0)
+            middleware.handle(event: event, session: database.viewContext, completion: $0)
         }
         
         // Assert event is forwared as it is
@@ -654,7 +661,7 @@ final class HealthCheckMiddleware_Tests: XCTestCase {
         
         // Simulate `HealthCheckEvent`
         var forwardedEvent: Event?
-        middleware.handle(event: event) {
+        middleware.handle(event: event, session: database.viewContext) {
             forwardedEvent = $0
         }
         
@@ -667,7 +674,7 @@ final class HealthCheckMiddleware_Tests: XCTestCase {
         
         // Simulate `HealthCheckEvent`
         var forwardedEvent: Event?
-        middleware.handle(event: event) {
+        middleware.handle(event: event, session: database.viewContext) {
             forwardedEvent = $0
         }
         
