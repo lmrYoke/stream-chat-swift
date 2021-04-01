@@ -6,15 +6,12 @@ import Foundation
 
 /// The middleware listens for `MemberEvent`s and updates `ChannelDTO`s accordingly.
 struct MemberEventMiddleware<ExtraData: ExtraDataTypes>: EventMiddleware {
-    let database: DatabaseContainer
-    
-    func handle(event: Event, completion: @escaping (Event?) -> Void) {
-        guard let memberEvent = event as? MemberEvent else {
-            completion(event)
-            return
-        }
+    func handle(event: Event, session: DatabaseSession, completion: @escaping (Event?) -> Void) {
+        defer { completion(event) }
         
-        database.write { session in
+        guard let memberEvent = event as? MemberEvent else { return }
+        
+        do {
             switch memberEvent {
             case is MemberAddedEvent, is MemberUpdatedEvent:
                 guard let eventWithMemberPayload = event as? EventWithMemberPayload,
@@ -39,11 +36,8 @@ struct MemberEventMiddleware<ExtraData: ExtraDataTypes>: EventMiddleware {
             default:
                 break
             }
-        } completion: { error in
-            if let error = error {
-                log.error("Failed to update channel members in the database, error: \(error)")
-            }
-            completion(event)
+        } catch {
+            log.error("Failed to update channel members in the database, error: \(error)")
         }
     }
 }
