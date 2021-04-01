@@ -410,7 +410,8 @@ class WebSocketClient_Tests: StressTestCase {
         let testEvent = TestEvent()
         decoder.decodedEvent = testEvent
         
-        // Start logging events
+        // Clean up pending events and start logging the new ones
+        eventNotificationCenter.pendingEvents = []
         let eventLogger = EventLogger(eventNotificationCenter)
         
         // Simulate incoming data
@@ -428,6 +429,9 @@ class WebSocketClient_Tests: StressTestCase {
         // Simulate connection
         test_connectionFlow()
         
+        // Clean up pending events
+        eventNotificationCenter.pendingEvents = []
+
         // Make the decoder return an event
         let incomingEvent = TestEvent()
         decoder.decodedEvent = incomingEvent
