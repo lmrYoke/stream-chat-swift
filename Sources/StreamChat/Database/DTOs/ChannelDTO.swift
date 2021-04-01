@@ -66,6 +66,11 @@ class ChannelDTO: NSManagedObject {
                     $0.didChangeValue(for: \.id)
                 }
         }
+        
+        let newAt = lastMessageAt ?? createdAt
+        if newAt != defaultSortingAt {
+            defaultSortingAt = newAt
+        }
     }
 
     /// The fetch request that returns all existed channels from the database
