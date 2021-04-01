@@ -12,7 +12,7 @@ class EventDataProcessorMiddleware_Tests: XCTestCase {
     override func setUp() {
         super.setUp()
         database = DatabaseContainerMock()
-        middleware = EventDataProcessorMiddleware(database: database)
+        middleware = EventDataProcessorMiddleware()
     }
     
     override func tearDown() {
@@ -40,7 +40,7 @@ class EventDataProcessorMiddleware_Tests: XCTestCase {
         let testEvent = TestEvent(payload: eventPayload)
         
         // Let the middleware handle the event
-        let completion = try await { middleware.handle(event: testEvent, completion: $0) }
+        let completion = try await { middleware.handle(event: testEvent, session: database.viewContext, completion: $0) }
         
         // Assert the channel data is saved and the event is forwarded
         var loadedChannel: _ChatChannel<NoExtraData>? {
@@ -56,16 +56,16 @@ class EventDataProcessorMiddleware_Tests: XCTestCase {
             let payload: Any
         }
         
-        // This is not really used, we just need to have something to create the event with
-        let somePayload = EventPayload<NoExtraData>(eventType: .healthCheck)
-        
-        let testEvent = TestEvent(payload: somePayload)
+        // Create dummy event payload
+        let eventPayload = EventPayload<NoExtraData>(eventType: .userUpdated, user: .dummy(userId: .unique))
+        let testEvent = TestEvent(payload: eventPayload)
         
         // Simulate the DB fails to save the payload
-        database.write_errorResponse = TestError()
+        let session = DatabaseSessionMock(underlyingSession: database.viewContext)
+        session.errorToReturn = TestError()
         
         // Let the middleware handle the event
-        let completion = try await { middleware.handle(event: testEvent, completion: $0) }
+        let completion = try await { middleware.handle(event: testEvent, session: session, completion: $0) }
         
         // Assert the event is not forwarded
         XCTAssertNil(completion)
@@ -78,7 +78,7 @@ class EventDataProcessorMiddleware_Tests: XCTestCase {
         let testEvent = TestEvent()
         
         // Let the middleware handle the event
-        let completion = try await { middleware.handle(event: testEvent, completion: $0) }
+        let completion = try await { middleware.handle(event: testEvent, session: database.viewContext, completion: $0) }
         
         // Assert the event is forwarded
         XCTAssertEqual(completion?.asEquatable, testEvent.asEquatable)
