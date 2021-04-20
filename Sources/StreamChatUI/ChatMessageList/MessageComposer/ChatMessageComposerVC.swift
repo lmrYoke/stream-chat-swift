@@ -234,20 +234,24 @@ open class _ChatMessageComposerVC<ExtraData: ExtraDataTypes>: _ViewController,
                 messageId: threadParentMessage.id
             )
             
-            messageController?.createNewReply(
-                text: text,
-                pinning: nil,
-                attachments: attachments + attachmentSeeds,
-                showReplyInChannel: composerView.checkmarkControl.isSelected,
-                quotedMessageId: quotedMessageId
-            )
+//            messageController?.createNewReply(
+//                text: text,
+//                pinning: nil,
+//                attachments: attachments + attachmentSeeds,
+//                showReplyInChannel: composerView.checkmarkControl.isSelected,
+//                quotedMessageId: quotedMessageId
+//            )
+            
+            messageController?.createNewReply(text: text, attachments: attachments + attachmentSeeds, showReplyInChannel: composerView.checkmarkControl.isSelected, quotedMessageId: quotedMessageId)
+            
         } else {
-            controller?.createNewMessage(
-                text: text,
-                pinning: nil,
-                attachments: attachments + attachmentSeeds,
-                quotedMessageId: quotedMessageId
-            )
+            controller?.createNewMessage(text: text, attachments: attachments + attachmentSeeds, quotedMessageId: quotedMessageId)
+//            controller?.createNewMessage(
+//                text: text,
+//                pinning: nil,
+//                attachments: attachments + attachmentSeeds,
+//                quotedMessageId: quotedMessageId
+//            )
         }
     }
     
