@@ -53,11 +53,11 @@ public extension Customizable where Self: UIViewController {
 extension UIConfigProvider where Self: _View {
     public func uiConfigDidRegister() {
         if isInitialized {
-            log.assertionFailure(
-                "`UIConfig` was assigned after the view has been already initialized. This is most likely caused by assigning " +
-                    "the custom `UIConfig` instance after the view has been added to the view hierarchy, or after the view's subviews " +
-                    "have been initialized already. This is undefined behavior and should be avoided."
-            )
+//            log.assertionFailure(
+//                "`UIConfig` was assigned after the view has been already initialized. This is most likely caused by assigning " +
+//                    "the custom `UIConfig` instance after the view has been added to the view hierarchy, or after the view's subviews " +
+//                    "have been initialized already. This is undefined behavior and should be avoided."
+//            )
         }
     }
 }
